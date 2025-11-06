@@ -6,7 +6,7 @@ USE timetable_db;
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
   display_name VARCHAR(100) NOT NULL,
   role ENUM('ADMIN','LECTURER','STUDENT') NOT NULL,
   email VARCHAR(120) UNIQUE,
@@ -78,9 +78,9 @@ CREATE TABLE IF NOT EXISTS enrollments (
   FOREIGN KEY (section_id) REFERENCES class_sections(id) ON DELETE CASCADE,
   UNIQUE KEY uq_enr (student_user_id, section_id)
 );
-INSERT INTO users (username,password_hash,display_name,role,email,active)
+INSERT INTO users (username,password,display_name,role,email,active)
 VALUES ('admin','admin123','Administrator','ADMIN','admin@example.com',1)
-ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash);
+ON DUPLICATE KEY UPDATE password=VALUES(password);
 INSERT INTO semesters (name,academic_year,start_date,end_date,is_published)
 VALUES ('HK1','2025-2026','2025-09-01','2025-12-31',1)
 ON DUPLICATE KEY UPDATE start_date=VALUES(start_date),end_date=VALUES(end_date),is_published=VALUES(is_published);
