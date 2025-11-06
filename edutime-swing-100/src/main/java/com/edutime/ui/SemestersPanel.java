@@ -1,0 +1,19 @@
+package com.edutime.ui;
+import com.edutime.util.UiTheme; import com.edutime.dao.SemesterDao; import com.edutime.model.Semester; import javax.swing.*; import javax.swing.table.DefaultTableModel; import java.awt.*; import java.sql.*;
+public class SemestersPanel extends JPanel{
+  private final DefaultTableModel model=new DefaultTableModel(new Object[]{"ID","Tên học kỳ","Năm học","Bắt đầu","Kết thúc","Công bố"},0){ public boolean isCellEditable(int r,int c){return false;}};
+  private final JTable table=new JTable(model); private final SemesterDao dao=new SemesterDao();
+  public SemestersPanel(){ setLayout(new BorderLayout(10,10)); setBackground(UiTheme.BG); JToolBar tb=new JToolBar(); tb.setFloatable(false); UiTheme.styleToolbar(tb);
+    JButton btnAdd=new JButton("Thêm"), btnEditBtn=new JButton("Sửa"), btnDel=new JButton("Xóa"), btnReload=new JButton("Tải lại"); tb.add(btnAdd); tb.add(btnEditBtn); tb.add(btnDel); tb.addSeparator(); tb.add(btnReload); add(tb,BorderLayout.NORTH);
+    table.setRowHeight(26); add(new JScrollPane(table),BorderLayout.CENTER); btnReload.addActionListener(evt->loadData());
+    btnAdd.addActionListener(evt->{ JTextField name=new JTextField("HK1"); JTextField ay=new JTextField("2025-2026"); JTextField startField=new JTextField("2025-09-01"); JTextField endField=new JTextField("2025-12-31"); JCheckBox pub=new JCheckBox("Công bố",true);
+      Object[] msg={"Tên học kỳ",name,"Năm học",ay,"Bắt đầu",startField,"Kết thúc",endField,pub}; if(JOptionPane.showConfirmDialog(this,msg,"Thêm học kỳ",JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION){ try{ dao.insert(name.getText().trim(),ay.getText().trim(),startField.getText().trim(),endField.getText().trim(),pub.isSelected()); loadData(); }catch(SQLException ex){ JOptionPane.showMessageDialog(this,"Lỗi: "+ex.getMessage()); } }});
+    btnEditBtn.addActionListener(evt->{ int row=table.getSelectedRow(); if(row<0){JOptionPane.showMessageDialog(this,"Chọn 1 dòng.");return;} int id=(int)model.getValueAt(row,0);
+      JTextField name=new JTextField(String.valueOf(model.getValueAt(row,1))); JTextField ay=new JTextField(String.valueOf(model.getValueAt(row,2))); JTextField startField=new JTextField(String.valueOf(model.getValueAt(row,3))); JTextField endField=new JTextField(String.valueOf(model.getValueAt(row,4))); JCheckBox pub=new JCheckBox("Công bố","Có".equals(model.getValueAt(row,5)));
+      Object[] msg={"Tên học kỳ",name,"Năm học",ay,"Bắt đầu",startField,"Kết thúc",endField,pub}; if(JOptionPane.showConfirmDialog(this,msg,"Sửa học kỳ",JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION){ try{ dao.update(id,name.getText().trim(),ay.getText().trim(),startField.getText().trim(),endField.getText().trim(),pub.isSelected()); loadData(); }catch(SQLException ex){ JOptionPane.showMessageDialog(this,"Lỗi: "+ex.getMessage()); } }});
+    btnDel.addActionListener(evt->{ int row=table.getSelectedRow(); if(row<0){JOptionPane.showMessageDialog(this,"Chọn 1 dòng.");return;} int id=(int)model.getValueAt(row,0);
+      if(JOptionPane.showConfirmDialog(this,"Xóa học kỳ ID="+id+"?","Xác nhận",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION){ try{ dao.delete(id); loadData(); }catch(SQLException ex){ JOptionPane.showMessageDialog(this,"Lỗi: "+ex.getMessage()); } }});
+    loadData();
+  }
+  private void loadData(){ model.setRowCount(0); try{ for(Semester it: new com.edutime.dao.SemesterDao().list()) model.addRow(new Object[]{it.id,it.name,it.academicYear,it.startDate,it.endDate,it.published?"Có":"Không"}); }catch(SQLException ex){ JOptionPane.showMessageDialog(this,"Lỗi tải dữ liệu: "+ex.getMessage()); } }
+}

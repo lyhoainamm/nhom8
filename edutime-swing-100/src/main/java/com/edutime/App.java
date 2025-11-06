@@ -1,0 +1,1 @@
+package com.edutime; import com.edutime.ui.LoginFrame; import com.edutime.util.UiTheme; import javax.swing.*; public class App{ public static void main(String[] args){ UiTheme.setupLookAndFeel(); SwingUtilities.invokeLater(()-> new LoginFrame().setVisible(true)); }}
